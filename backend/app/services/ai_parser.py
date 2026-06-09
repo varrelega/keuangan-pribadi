@@ -107,11 +107,27 @@ Jika tidak yakin dengan nilai tertentu, gunakan null.
         original_text = text
 
         tipe = None
-        if any(word in text_lower for word in ["beli", "bayar", "buat", "untuk", "keluar"]):
+        if any(word in text_lower for word in [
+            "beli", "bayar", "buat", "untuk", "keluar",
+            "service", "servis", "bengkel", "ganti", "perbaiki",
+            "makan", "minum", "kopi", "jajan",
+            "bensin", "parkir", "tol", "bbm",
+            "pulsa", "kuota", "paket data", "langganan",
+            "sewa", "bayar", "biaya", "ongkir", "ongkos",
+            "belanja", "sembako", "sayur", "daging",
+            "topup", "top up", "isi ulang",
+        ]):
             tipe = "PENGELUARAN"
-        elif any(word in text_lower for word in ["dapat", "terima", "gaji", "masuk", "pendapatan"]):
+        elif any(word in text_lower for word in [
+            "dapat", "terima", "gaji", "masuk", "pendapatan",
+            "bonus", "hasil", "komisi", "refund", "kembali",
+            "kiriman", "transferan", "rejeki", "untung",
+            "dividen", "bunga", "cashback",
+        ]):
             tipe = "PEMASUKAN"
-        elif any(word in text_lower for word in ["transfer", "kirim", "pindah", "top up", "topup", "isi"]):
+        elif any(word in text_lower for word in [
+            "transfer", "kirim", "pindah", "top up", "topup", "isi",
+        ]):
             tipe = "TRANSFER"
 
         if not tipe:
