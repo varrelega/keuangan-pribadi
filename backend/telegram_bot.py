@@ -511,13 +511,11 @@ async def save_transaction(query, user_id, token):
             return None
 
         def find_category_id(name, tipe):
-            if name:
-                nl = name.lower()
-                for c in categories:
-                    if c["tipe"] == tipe and nl in c["nama_kategori"].lower():
-                        return c["id_kategori"]
+            if not name:
+                return None
+            nl = name.lower()
             for c in categories:
-                if c["tipe"] == tipe:
+                if c["tipe"] == tipe and nl in c["nama_kategori"].lower():
                     return c["id_kategori"]
             return None
 
@@ -535,38 +533,41 @@ async def save_transaction(query, user_id, token):
         if parsed["tipe"] == "PENGELUARAN":
             wal_id = find_wallet_id(parsed.get("dompet_asal"))
             if not wal_id:
-                wal_list = "\n".join(f"• {w['nama_dompet']}" for w in wallets)
                 await query.edit_message_text(
-                    f"❌ Dompet '{parsed.get('dompet_asal')}' tidak ditemukan!\n\n"
-                    f"Tersedia:\n{wal_list}\n\n"
-                    f"Ketik ulang dengan nama yang sesuai."
+                    f"❌ Pilih dompet asal dulu! Tap tombol 'Dari:' di atas."
                 )
                 return
             tx_data["id_dompet_asal"] = wal_id
-            tx_data["id_kategori"] = find_category_id(parsed.get("kategori"), "PENGELUARAN")
+            kat_id = find_category_id(parsed.get("kategori"), "PENGELUARAN")
+            if not kat_id:
+                await query.edit_message_text(
+                    f"❌ Pilih kategori dulu! Tap tombol 'Kategori:' di atas."
+                )
+                return
+            tx_data["id_kategori"] = kat_id
 
         elif parsed["tipe"] == "PEMASUKAN":
             wal_id = find_wallet_id(parsed.get("dompet_tujuan"))
             if not wal_id:
-                wal_list = "\n".join(f"• {w['nama_dompet']}" for w in wallets)
                 await query.edit_message_text(
-                    f"❌ Dompet '{parsed.get('dompet_tujuan')}' tidak ditemukan!\n\n"
-                    f"Tersedia:\n{wal_list}\n\n"
-                    f"Ketik ulang dengan nama yang sesuai."
+                    f"❌ Pilih dompet tujuan dulu! Tap tombol 'Ke:' di atas."
                 )
                 return
             tx_data["id_dompet_tujuan"] = wal_id
-            tx_data["id_kategori"] = find_category_id(parsed.get("kategori"), "PEMASUKAN")
+            kat_id = find_category_id(parsed.get("kategori"), "PEMASUKAN")
+            if not kat_id:
+                await query.edit_message_text(
+                    f"❌ Pilih kategori dulu! Tap tombol 'Kategori:' di atas."
+                )
+                return
+            tx_data["id_kategori"] = kat_id
 
         elif parsed["tipe"] == "TRANSFER":
             asal_id = find_wallet_id(parsed.get("dompet_asal"))
             tuju_id = find_wallet_id(parsed.get("dompet_tujuan"))
             if not asal_id or not tuju_id:
-                wal_list = "\n".join(f"• {w['nama_dompet']}" for w in wallets)
                 await query.edit_message_text(
-                    f"❌ Dompet tidak ditemukan!\n\n"
-                    f"Tersedia:\n{wal_list}\n\n"
-                    f"Gunakan tombol ✏️ untuk pilih dompet."
+                    f"❌ Pilih dompet asal & tujuan dulu! Tap tombol 'Dari:' dan 'Ke:' di atas."
                 )
                 return
             tx_data["id_dompet_asal"] = asal_id
