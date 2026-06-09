@@ -7,7 +7,9 @@ Implements caching strategy per PRD Section 7:
 - Row scanning by ID column for update/delete since Sheets has no auto-increment.
 """
 
+import json
 import logging
+import os
 import time
 import uuid
 from datetime import datetime, timezone
@@ -66,15 +68,22 @@ class GoogleSheetsService:
         """Lazily initialize the Google Sheets API service."""
         if self._service is None:
             try:
-                credentials = service_account.Credentials.from_service_account_file(
-                    settings.google_service_account_file, scopes=SCOPES
-                )
+                creds_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+                if creds_json:
+                    creds_dict = json.loads(creds_json)
+                    credentials = service_account.Credentials.from_service_account_info(
+                        creds_dict, scopes=SCOPES
+                    )
+                else:
+                    credentials = service_account.Credentials.from_service_account_file(
+                        settings.google_service_account_file, scopes=SCOPES
+                    )
                 self._service = build("sheets", "v4", credentials=credentials)
             except Exception as e:
                 logger.error(f"Failed to initialize Google Sheets service: {e}")
                 raise RuntimeError(
                     "Gagal menginisialisasi koneksi Google Sheets. "
-                    "Pastikan file credentials.json valid."
+                    "Pastikan GOOGLE_SERVICE_ACCOUNT_JSON (env var) atau credentials.json valid."
                 ) from e
         return self._service
 
