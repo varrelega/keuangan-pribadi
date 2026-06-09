@@ -129,11 +129,14 @@ async def login_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     username, password = args[0], args[1]
 
     try:
-        resp = await call_backend(
-            "/api/auth/login",
-            method="POST",
-            data={"username": username, "password": password},
-        )
+        async with httpx.AsyncClient(base_url=BACKEND_URL, timeout=30) as client:
+            resp = await client.post(
+                "/api/auth/login",
+                data={"username": username, "password": password},
+                headers={"Content-Type": "application/x-www-form-urlencoded"},
+            )
+            resp.raise_for_status()
+            resp = resp.json()
         user_sessions[user_id] = {
             "token": resp["access_token"],
             "username": username,
