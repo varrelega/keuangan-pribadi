@@ -9,18 +9,18 @@ load_dotenv()
 import httpx
 
 
-DEEPSEEK_API_URL = "https://api.deepseek.com/v1/chat/completions"
+OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 
 class TransactionParser:
-    """Parse natural language transaction input using DeepSeek AI."""
+    """Parse natural language transaction input using OpenRouter AI (free models)."""
 
     def __init__(self):
-        self.api_key = os.getenv("DEEPSEEK_API_KEY")
-        if not self.api_key or self.api_key == "your-deepseek-api-key-here":
+        self.api_key = os.getenv("OPENROUTER_API_KEY")
+        if not self.api_key or self.api_key == "your-openrouter-api-key-here":
             raise ValueError(
-                "DEEPSEEK_API_KEY tidak ditemukan di .env. "
-                "Dapatkan di https://platform.deepseek.com/api_keys"
+                "OPENROUTER_API_KEY tidak ditemukan di .env. "
+                "Dapatkan gratis di https://openrouter.ai/keys"
             )
 
     def parse_transaction(self, text: str) -> Optional[Dict[str, Any]]:
@@ -54,13 +54,15 @@ Jika tidak yakin dengan nilai tertentu, gunakan null.
 
         try:
             response = httpx.post(
-                DEEPSEEK_API_URL,
+                OPENROUTER_API_URL,
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json",
+                    "HTTP-Referer": "https://keuangan-pribadi.vercel.app",
+                    "X-Title": "Keuangan Pribadi",
                 },
                 json={
-                    "model": "deepseek-chat",
+                    "model": "openrouter/free",
                     "messages": [{"role": "user", "content": prompt}],
                     "temperature": 0.1,
                 },
@@ -185,8 +187,8 @@ Jika tidak yakin dengan nilai tertentu, gunakan null.
 
 try:
     parser = TransactionParser()
-    print("OK: DeepSeek AI parser initialized")
+    print("OK: OpenRouter AI parser initialized")
 except ValueError as e:
-    print(f"Warning: DeepSeek not configured - {e}")
+    print(f"Warning: OpenRouter not configured - {e}")
     print("Info: Bot will use simple regex parser as fallback")
     parser = None
