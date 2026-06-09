@@ -42,7 +42,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Dashboard</h2>
+      <h2 className="text-xl md:text-2xl font-bold">Dashboard</h2>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -116,7 +116,7 @@ export default function DashboardPage() {
           {data.pemasukan_per_kategori?.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <h3 className="text-lg font-semibold mb-4">Pemasukan per Kategori</h3>
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
                   <Pie
                     data={data.pemasukan_per_kategori}
@@ -124,7 +124,8 @@ export default function DashboardPage() {
                     nameKey="nama_kategori"
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    outerRadius={90}
+                    labelLine={false}
                     label={({ nama_kategori, percent }) =>
                       `${nama_kategori} ${(percent * 100).toFixed(0)}%`
                     }
@@ -141,7 +142,7 @@ export default function DashboardPage() {
           {data.pengeluaran_per_kategori?.length > 0 && (
             <div className="bg-white rounded-xl shadow-sm border p-6">
               <h3 className="text-lg font-semibold mb-4">Pengeluaran per Kategori</h3>
-              <ResponsiveContainer width="100%" height={280}>
+              <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
                   <Pie
                     data={data.pengeluaran_per_kategori}
@@ -149,7 +150,8 @@ export default function DashboardPage() {
                     nameKey="nama_kategori"
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    outerRadius={90}
+                    labelLine={false}
                     label={({ nama_kategori, percent }) =>
                       `${nama_kategori} ${(percent * 100).toFixed(0)}%`
                     }

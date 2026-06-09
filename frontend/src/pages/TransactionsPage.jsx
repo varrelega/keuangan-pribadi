@@ -105,7 +105,7 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Transaksi</h2>
+        <h2 className="text-xl md:text-2xl font-bold">Transaksi</h2>
         <button onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
           <Plus size={16} /> Catat Transaksi
@@ -216,49 +216,84 @@ export default function TransactionsPage() {
           <p>Belum ada transaksi. Mulai catat keuangan Anda.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b">
-              <tr>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Tanggal</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Tipe</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Detail</th>
-                <th className="text-right px-4 py-3 font-medium text-gray-500">Nominal</th>
-                <th className="text-left px-4 py-3 font-medium text-gray-500">Catatan</th>
-                <th className="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {transactions.map((tx) => (
-                <tr key={tx.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3 whitespace-nowrap">{tx.tanggal}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ${TIPE_COLORS[tx.tipe]}`}>
+        <>
+          {/* Desktop Table */}
+          <div className="hidden md:block bg-white rounded-xl shadow-sm border overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b">
+                <tr>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500">Tanggal</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500">Tipe</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500">Detail</th>
+                  <th className="text-right px-4 py-3 font-medium text-gray-500">Nominal</th>
+                  <th className="text-left px-4 py-3 font-medium text-gray-500">Catatan</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {transactions.map((tx) => (
+                  <tr key={tx.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3 whitespace-nowrap">{tx.tanggal}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ${TIPE_COLORS[tx.tipe]}`}>
+                        {TIPE_ICONS[tx.tipe]} {tx.tipe}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600">
+                      {tx.tipe === 'TRANSFER'
+                        ? `${getWalletName(tx.id_dompet_asal)} \u2192 ${getWalletName(tx.id_dompet_tujuan)}`
+                        : `${getCategoryName(tx.id_kategori)} (${getWalletName(tx.id_dompet_asal || tx.id_dompet_tujuan)})`}
+                    </td>
+                    <td className="px-4 py-3 text-right font-medium whitespace-nowrap">
+                      <span className={tx.tipe === 'PEMASUKAN' ? 'text-green-600' : tx.tipe === 'PENGELUARAN' ? 'text-red-600' : ''}>
+                        {tx.tipe === 'PEMASUKAN' ? '+' : tx.tipe === 'PENGELUARAN' ? '-' : ''}{formatRupiah(tx.nominal)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-400 truncate max-w-[150px]">{tx.catatan || '-'}</td>
+                    <td className="px-4 py-3">
+                      <button onClick={() => handleDelete(tx.id)}
+                        className="text-gray-300 hover:text-red-500 transition-colors">
+                        <Trash2 size={14} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {transactions.map((tx) => (
+              <div key={tx.id} className="bg-white rounded-xl shadow-sm border p-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${TIPE_COLORS[tx.tipe]}`}>
                       {TIPE_ICONS[tx.tipe]} {tx.tipe}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">
-                    {tx.tipe === 'TRANSFER'
-                      ? `${getWalletName(tx.id_dompet_asal)} → ${getWalletName(tx.id_dompet_tujuan)}`
-                      : `${getCategoryName(tx.id_kategori)} (${getWalletName(tx.id_dompet_asal || tx.id_dompet_tujuan)})`}
-                  </td>
-                  <td className="px-4 py-3 text-right font-medium whitespace-nowrap">
-                    <span className={tx.tipe === 'PEMASUKAN' ? 'text-green-600' : tx.tipe === 'PENGELUARAN' ? 'text-red-600' : ''}>
-                      {tx.tipe === 'PEMASUKAN' ? '+' : tx.tipe === 'PENGELUARAN' ? '-' : ''}{formatRupiah(tx.nominal)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-400 truncate max-w-[150px]">{tx.catatan || '-'}</td>
-                  <td className="px-4 py-3">
-                    <button onClick={() => handleDelete(tx.id)}
-                      className="text-gray-300 hover:text-red-500 transition-colors">
-                      <Trash2 size={14} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    <span className="text-xs text-gray-400">{tx.tanggal}</span>
+                  </div>
+                  <button onClick={() => handleDelete(tx.id)}
+                    className="text-gray-300 hover:text-red-500 transition-colors">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+                <p className="text-sm text-gray-600 mb-1">
+                  {tx.tipe === 'TRANSFER'
+                    ? `${getWalletName(tx.id_dompet_asal)} \u2192 ${getWalletName(tx.id_dompet_tujuan)}`
+                    : `${getCategoryName(tx.id_kategori)}`}
+                </p>
+                <p className="text-xs text-gray-400 mb-2">
+                  {getWalletName(tx.id_dompet_asal || tx.id_dompet_tujuan)}
+                  {tx.catatan ? ` \u2022 ${tx.catatan}` : ''}
+                </p>
+                <p className={`text-base font-bold ${tx.tipe === 'PEMASUKAN' ? 'text-green-600' : tx.tipe === 'PENGELUARAN' ? 'text-red-600' : 'text-gray-900'}`}>
+                  {tx.tipe === 'PEMASUKAN' ? '+' : tx.tipe === 'PENGELUARAN' ? '-' : ''}{formatRupiah(tx.nominal)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

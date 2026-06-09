@@ -67,14 +67,14 @@ export default function BudgetsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-4">
-        <h2 className="text-2xl font-bold">Anggaran</h2>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h2 className="text-xl md:text-2xl font-bold">Anggaran</h2>
         <div className="flex items-center gap-3">
           <input type="month" value={periode}
             onChange={(e) => setPeriode(e.target.value)}
-            className="border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500" />
+            className="border rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500 flex-1 sm:flex-none" />
           <button onClick={() => { setShowForm(!showForm); setForm({ ...form, periode }); }}
-            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
+            className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 whitespace-nowrap">
             <Plus size={16} /> Tambah Anggaran
           </button>
         </div>

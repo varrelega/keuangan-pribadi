@@ -34,7 +34,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 to-purple-900">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+      <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-md mx-4 md:mx-0">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900">Keuangan Pribadi</h1>
           <p className="text-gray-500 mt-2">

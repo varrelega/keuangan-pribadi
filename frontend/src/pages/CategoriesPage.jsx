@@ -52,7 +52,7 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Kategori</h2>
+        <h2 className="text-xl md:text-2xl font-bold">Kategori</h2>
         <button onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700">
           <Plus size={16} /> Tambah Kategori
