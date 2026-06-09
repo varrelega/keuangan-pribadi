@@ -1,5 +1,3 @@
-"""JWT authentication utilities."""
-
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
@@ -9,13 +7,10 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.core.config import settings
+from app.services.sheets import sheets_service
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
-
-# In-memory user store (single-user app as per PRD - personal finance)
-# In production, this should be persisted
-USERS_DB: dict = {}
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -51,7 +46,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     except JWTError:
         raise credentials_exception
 
-    user = USERS_DB.get(username)
+    user = sheets_service.get_user(username)
     if user is None:
         raise credentials_exception
     return user

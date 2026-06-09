@@ -30,6 +30,7 @@ TAB_DOMPET = "dompet"
 TAB_KATEGORI = "kategori"
 TAB_ANGGARAN = "anggaran"
 TAB_TRANSAKSI = "transaksi"
+TAB_USERS = "users"
 
 # Headers per PRD Section 5
 HEADERS = {
@@ -40,6 +41,7 @@ HEADERS = {
         "id", "tanggal", "tipe", "id_kategori",
         "id_dompet_asal", "id_dompet_tujuan", "nominal", "catatan", "created_at",
     ],
+    TAB_USERS: ["username", "hashed_password", "created_at"],
 }
 
 
@@ -393,6 +395,17 @@ class GoogleSheetsService:
             return False
         self._delete_row(TAB_ANGGARAN, row_idx)
         return True
+
+    # ─── Users Operations ──────────────────────────────────────────
+
+    def get_user(self, username: str) -> Optional[Dict[str, str]]:
+        for u in self._rows_to_dicts(TAB_USERS):
+            if u.get("username") == username:
+                return u
+        return None
+
+    def create_user(self, username: str, hashed_password: str):
+        self._append_row(TAB_USERS, [username, hashed_password, datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")])
 
     # ─── Transaksi (Transaction) Operations ────────────────────────
 
