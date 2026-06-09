@@ -23,8 +23,21 @@ class TransactionParser:
                 "Dapatkan gratis di https://openrouter.ai/keys"
             )
 
-    def parse_transaction(self, text: str) -> Optional[Dict[str, Any]]:
+    def parse_transaction(self, text: str, categories: list = None, wallets: list = None) -> Optional[Dict[str, Any]]:
         """Parse natural language text into structured transaction data."""
+
+        cat_list = ""
+        if categories:
+            expense_cats = [c["nama_kategori"] for c in categories if c.get("tipe") == "PENGELUARAN"]
+            income_cats = [c["nama_kategori"] for c in categories if c.get("tipe") == "PEMASUKAN"]
+            if expense_cats:
+                cat_list += f"\nKategori PENGELUARAN tersedia: {', '.join(expense_cats)}"
+            if income_cats:
+                cat_list += f"\nKategori PEMASUKAN tersedia: {', '.join(income_cats)}"
+
+        wal_list = ""
+        if wallets:
+            wal_list = f"\nDompet tersedia: {', '.join(w['nama_dompet'] for w in wallets)}"
 
         prompt = f"""Kamu adalah asisten parsing transaksi keuangan. 
 Ekstrak informasi transaksi dari teks berikut dan kembalikan dalam format JSON.
@@ -32,10 +45,10 @@ Ekstrak informasi transaksi dari teks berikut dan kembalikan dalam format JSON.
 Aturan:
 - tipe: "PEMASUKAN", "PENGELUARAN", atau "TRANSFER"
 - nominal: angka dalam rupiah (tanpa titik/koma, contoh: 25000)
-- kategori: kategori transaksi (Makanan & Minuman, Transportasi, Belanja, Hiburan, Tagihan, Gaji, dll)
-- dompet_asal: nama dompet/akun untuk pengeluaran atau transfer (GoPay, ShopeePay, Bank BCA, Cash, dll)
-- dompet_tujuan: nama dompet/akun untuk pemasukan atau transfer
-- catatan: keterangan tambahan (opsional)
+- kategori: pilih dari daftar yang tersedia. Jika tidak cocok, gunakan null.
+- dompet_asal: pilih dari daftar dompet yang tersedia. Jika tidak disebutkan, gunakan null.
+- dompet_tujuan: pilih dari daftar dompet yang tersedia. Jika tidak disebutkan, gunakan null.
+- catatan: keterangan tambahan (opsional){cat_list}{wal_list}
 
 Deteksi kata kunci:
 - "beli", "bayar", "buat", "untuk" → PENGELUARAN
@@ -49,7 +62,7 @@ Teks: "{text}"
 Kembalikan HANYA JSON tanpa penjelasan tambahan. Format:
 {{"tipe": "...", "nominal": ..., "kategori": "...", "dompet_asal": "...", "dompet_tujuan": "...", "catatan": "..."}}
 
-Jika tidak yakin dengan nilai tertentu, gunakan null.
+Gunakan nama kategori dan dompet PERSIS dari daftar yang tersedia. Jika tidak ada yang cocok, gunakan null.
 """
 
         try:

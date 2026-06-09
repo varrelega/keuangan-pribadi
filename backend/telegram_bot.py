@@ -134,12 +134,11 @@ async def cmd_saldo(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # ─── AI Parser ────────────────────────────────────────────
 
-def parse_with_ai(text: str) -> Optional[dict]:
-    """Try OpenRouter AI parser, return None if unavailable or fails."""
+def parse_with_ai(text: str, categories: list = None, wallets: list = None) -> Optional[dict]:
     try:
         from app.services.ai_parser import parser
         if parser:
-            return parser.parse_transaction(text)
+            return parser.parse_transaction(text, categories, wallets)
     except Exception:
         pass
     return None
@@ -223,6 +222,51 @@ def match_category(name: str, tipe: str, categories: list) -> Optional[str]:
 
 # ─── Transaction Handler ─────────────────────────────────
 
+def smart_match_category(name: str, tipe: str, categories: list) -> Optional[str]:
+    """Try to match parsed category name to existing categories using keywords."""
+    if not name:
+        return None
+    nl = name.lower()
+
+    # Exact/partial match first
+    for c in categories:
+        if c["tipe"] == tipe and nl in c["nama_kategori"].lower():
+            return c["id_kategori"]
+
+    # Keyword mapping for common Indonesian expense categories
+    keyword_map = {
+        "makan": ["makan", "minum", "kopi", "jajan", "soto", "bakso", "nasi", "ayam", "sate",
+                  "cafe", "restoran", "warung", "katering", "catering"],
+        "transportasi": ["bensin", "parkir", "tol", "bengkel", "service", "servis", "spbu",
+                         "bbm", "solar", "ganti oli", "tambah angin", "cuci motor", "cuci mobil",
+                         "perbaiki", "perbaikan", "montir"],
+        "belanja": ["belanja", "sembako", "sayur", "daging", "buah", "beras", "minyak goreng",
+                    "indomaret", "alfamart", "supermarket"],
+        "hiburan": ["nonton", "bioskop", "game", "steam", "netflix", "spotify", "youtube"],
+        "tagihan": ["listrik", "air", "pdam", "pln", "bpjs", "pajak", "iuran"],
+        "pulsa": ["pulsa", "kuota", "paket data"],
+        "transportasi umum": ["gojek", "grab", "taxi", "taksi", "ojek", "bus", "transit", "krl",
+                              "mrt", "lrt", "angkot"],
+    }
+
+    for default_name, keywords in keyword_map.items():
+        if any(kw in nl for kw in keywords):
+            for c in categories:
+                if c["tipe"] == tipe and default_name in c["nama_kategori"].lower():
+                    return c["id_kategori"]
+            # Also try partial match on each word
+            for c in categories:
+                cn = c["nama_kategori"].lower()
+                if c["tipe"] == tipe and any(kw in cn for kw in keywords):
+                    return c["id_kategori"]
+
+    # Fallback: use first category of this type
+    for c in categories:
+        if c["tipe"] == tipe:
+            return c["id_kategori"]
+    return None
+
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     uid = update.effective_user.id
     token = get_token(uid)
@@ -232,8 +276,20 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = update.message.text
 
-    # Parse with AI first, fallback to regex
-    parsed = parse_with_ai(text)
+    # Fetch wallets & categories first for matching
+    try:
+        wallets = await api("/api/wallets/", token=token)
+        categories = await api("/api/categories/", token=token)
+    except Exception as e:
+        await update.message.reply_text(f"❌ Gagal ambil data: {str(e)[:100]}")
+        return
+
+    if not wallets:
+        await update.message.reply_text("❌ Belum ada dompet! Buat di web app dulu.")
+        return
+
+    # Parse with AI (pass categories & wallets for context), fallback to regex
+    parsed = parse_with_ai(text, categories, wallets)
     if not parsed:
         parsed = parse_with_regex(text)
     if not parsed:
@@ -245,13 +301,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     try:
-        wallets = await api("/api/wallets/", token=token)
-        categories = await api("/api/categories/", token=token)
-
-        if not wallets:
-            await update.message.reply_text("❌ Belum ada dompet! Buat di web app dulu.")
-            return
-
         tx = {"tanggal": str(date.today()), "tipe": parsed["tipe"], "nominal": parsed["nominal"],
               "catatan": parsed.get("catatan")}
 
@@ -264,7 +313,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
             tx["id_dompet_asal"] = wal
-            kat = match_category(parsed.get("kategori"), "PENGELUARAN", categories)
+            kat = smart_match_category(parsed.get("kategori"), "PENGELUARAN", categories)
             if kat:
                 tx["id_kategori"] = kat
 
@@ -277,7 +326,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 return
             tx["id_dompet_tujuan"] = wal
-            kat = match_category(parsed.get("kategori"), "PEMASUKAN", categories)
+            kat = smart_match_category(parsed.get("kategori"), "PEMASUKAN", categories)
             if kat:
                 tx["id_kategori"] = kat
 
@@ -295,7 +344,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         if not tx.get("id_kategori") and parsed["tipe"] != "TRANSFER":
             await update.message.reply_text(
-                f"❌ Tidak ada kategori {parsed['tipe']}. Buat di web app dulu."
+                f"❌ Tidak ada kategori '{parsed.get('kategori','')}' — buat kategori {parsed['tipe']} dulu di web app."
             )
             return
 
