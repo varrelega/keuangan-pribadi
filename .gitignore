@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.env
+backend/credentials.json
+*.pyc
+__pycache__/
+.vite/
