@@ -26,7 +26,8 @@ load_dotenv()
 
 # Configuration
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-BACKEND_URL = os.getenv("TELEGRAM_BACKEND_URL", "http://localhost:8000")
+PORT = os.getenv("PORT", "8000")
+BACKEND_URL = os.getenv("TELEGRAM_BACKEND_URL", f"http://localhost:{PORT}")
 
 if not TELEGRAM_TOKEN or TELEGRAM_TOKEN == "your-telegram-bot-token-here":
     raise ValueError("TELEGRAM_BOT_TOKEN tidak ditemukan di .env file!")
