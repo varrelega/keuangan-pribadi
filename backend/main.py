@@ -20,24 +20,23 @@ async def lifespan(app: FastAPI):
     if token and token != "your-telegram-bot-token-here":
         try:
             from telegram import Update
-            from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
+            from telegram.ext import Application, CommandHandler, MessageHandler, filters
             from telegram_bot import (
-                start_command, help_command, login_command, logout_command,
-                saldo_command, handle_callback, handle_text_message,
+                cmd_start, cmd_help, cmd_login, cmd_logout,
+                cmd_saldo, handle_message,
             )
 
             global _bot_app
             _bot_app = (
                 Application.builder().token(token).build()
             )
-            _bot_app.add_handler(CommandHandler("start", start_command))
-            _bot_app.add_handler(CommandHandler("help", help_command))
-            _bot_app.add_handler(CommandHandler("login", login_command))
-            _bot_app.add_handler(CommandHandler("logout", logout_command))
-            _bot_app.add_handler(CommandHandler("saldo", saldo_command))
-            _bot_app.add_handler(CallbackQueryHandler(handle_callback))
+            _bot_app.add_handler(CommandHandler("start", cmd_start))
+            _bot_app.add_handler(CommandHandler("help", cmd_help))
+            _bot_app.add_handler(CommandHandler("login", cmd_login))
+            _bot_app.add_handler(CommandHandler("logout", cmd_logout))
+            _bot_app.add_handler(CommandHandler("saldo", cmd_saldo))
             _bot_app.add_handler(MessageHandler(
-                filters.TEXT & ~filters.COMMAND, handle_text_message
+                filters.TEXT & ~filters.COMMAND, handle_message
             ))
 
             await _bot_app.initialize()
