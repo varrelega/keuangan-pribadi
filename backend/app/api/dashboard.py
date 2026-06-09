@@ -13,6 +13,7 @@ from fastapi import APIRouter, Depends
 from app.core.security import get_current_user
 from app.models.schemas import (
     BudgetSummary,
+    CategoryBreakdown,
     DashboardResponse,
     MonthlyTrend,
     WalletSummary,
@@ -101,9 +102,36 @@ async def get_dashboard(user: dict = Depends(get_current_user)):
         for p in reversed(sorted_periods)
     ]
 
+    # --- Category Breakdown ---
+    kategori_map = {k["id_kategori"]: k["nama_kategori"] for k in sheets_service.get_all_kategori()}
+    income_by_cat: dict = {}
+    expense_by_cat: dict = {}
+
+    for tx in transaksi_list:
+        try:
+            nominal = float(tx.get("nominal", 0))
+        except (ValueError, TypeError):
+            continue
+        id_kat = tx.get("id_kategori", "")
+        nama_kat = kategori_map.get(id_kat, id_kat) if id_kat else "Tanpa Kategori"
+
+        if tx.get("tipe") == "PEMASUKAN":
+            income_by_cat[nama_kat] = income_by_cat.get(nama_kat, 0) + nominal
+        elif tx.get("tipe") == "PENGELUARAN":
+            expense_by_cat[nama_kat] = expense_by_cat.get(nama_kat, 0) + nominal
+
+    pemasukan_per_kategori = [
+        CategoryBreakdown(nama_kategori=k, total=v) for k, v in sorted(income_by_cat.items(), key=lambda x: -x[1])
+    ]
+    pengeluaran_per_kategori = [
+        CategoryBreakdown(nama_kategori=k, total=v) for k, v in sorted(expense_by_cat.items(), key=lambda x: -x[1])
+    ]
+
     return DashboardResponse(
         total_saldo=total_saldo,
         dompet_list=wallet_summaries,
         anggaran_bulan_ini=budget_summaries,
         tren_bulanan=monthly_trends,
+        pemasukan_per_kategori=pemasukan_per_kategori,
+        pengeluaran_per_kategori=pengeluaran_per_kategori,
     )

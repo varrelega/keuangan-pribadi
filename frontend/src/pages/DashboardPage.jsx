@@ -6,7 +6,15 @@ import {
   PieChart, Pie, Cell,
 } from 'recharts';
 
-const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'];
+const PIE_COLORS = [
+  '#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899',
+  '#14b8a6', '#f97316', '#06b6d4', '#84cc16', '#a855f7', '#e11d48',
+  '#0ea5e9', '#d946ef', '#22c55e', '#eab308', '#64748b', '#78716c',
+];
+
+function getColors(length) {
+  return PIE_COLORS.slice(0, length);
+}
 
 function formatRupiah(num) {
   return new Intl.NumberFormat('id-ID', {
@@ -99,6 +107,62 @@ export default function DashboardPage() {
               <Bar dataKey="total_pengeluaran" name="Pengeluaran" fill="#ef4444" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+        </div>
+      )}
+
+      {/* Category Breakdown Pie Charts */}
+      {(data.pemasukan_per_kategori?.length > 0 || data.pengeluaran_per_kategori?.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {data.pemasukan_per_kategori?.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <h3 className="text-lg font-semibold mb-4">Pemasukan per Kategori</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={data.pemasukan_per_kategori}
+                    dataKey="total"
+                    nameKey="nama_kategori"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={({ nama_kategori, percent }) =>
+                      `${nama_kategori} ${(percent * 100).toFixed(0)}%`
+                    }
+                  >
+                    {data.pemasukan_per_kategori.map((_, i) => (
+                      <Cell key={i} fill={getColors(data.pemasukan_per_kategori.length)[i]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(v) => formatRupiah(v)} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+          {data.pengeluaran_per_kategori?.length > 0 && (
+            <div className="bg-white rounded-xl shadow-sm border p-6">
+              <h3 className="text-lg font-semibold mb-4">Pengeluaran per Kategori</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={data.pengeluaran_per_kategori}
+                    dataKey="total"
+                    nameKey="nama_kategori"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={({ nama_kategori, percent }) =>
+                      `${nama_kategori} ${(percent * 100).toFixed(0)}%`
+                    }
+                  >
+                    {data.pengeluaran_per_kategori.map((_, i) => (
+                      <Cell key={i} fill={getColors(data.pengeluaran_per_kategori.length)[i]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(v) => formatRupiah(v)} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
       )}
 

@@ -146,8 +146,15 @@ class MonthlyTrend(BaseModel):
     selisih: float
 
 
+class CategoryBreakdown(BaseModel):
+    nama_kategori: str
+    total: float
+
+
 class DashboardResponse(BaseModel):
     total_saldo: float
     dompet_list: List[WalletSummary]
     anggaran_bulan_ini: List[BudgetSummary]
     tren_bulanan: List[MonthlyTrend]
+    pemasukan_per_kategori: List[CategoryBreakdown] = []
+    pengeluaran_per_kategori: List[CategoryBreakdown] = []
