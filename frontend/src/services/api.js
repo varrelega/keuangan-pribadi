@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const IS_PRODUCTION = window.location.hostname !== 'localhost';
+const API_BASE = IS_PRODUCTION
+  ? 'https://keuangan-pribadi-production-f4c0.up.railway.app/api'
+  : '/api';
 
 const api = axios.create({
   baseURL: API_BASE,
