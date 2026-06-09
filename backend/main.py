@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
             from telegram.ext import Application, CommandHandler, CallbackQueryHandler, MessageHandler, filters
             from telegram_bot import (
                 start_command, help_command, login_command, logout_command,
-                saldo_command, handle_callback, handle_transaction_message,
+                saldo_command, handle_callback, handle_text_message,
             )
 
             global _bot_app
@@ -37,7 +37,7 @@ async def lifespan(app: FastAPI):
             _bot_app.add_handler(CommandHandler("saldo", saldo_command))
             _bot_app.add_handler(CallbackQueryHandler(handle_callback))
             _bot_app.add_handler(MessageHandler(
-                filters.TEXT & ~filters.COMMAND, handle_transaction_message
+                filters.TEXT & ~filters.COMMAND, handle_text_message
             ))
 
             await _bot_app.initialize()
