@@ -27,9 +27,14 @@ export default function Layout({ children }) {
     <>
       <div className="p-4 md:p-6 border-b border-indigo-800">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-base md:text-lg font-bold">Keuangan</h1>
-            <p className="text-indigo-300 text-xs md:text-sm mt-0.5">{user?.username}</p>
+          <div className="flex items-center gap-3">
+            <div className="bg-indigo-600 rounded-lg p-1.5">
+              <Wallet size={18} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-base md:text-lg font-bold">Keuangan</h1>
+              <p className="text-indigo-300 text-xs md:text-sm mt-0.5">{user?.username}</p>
+            </div>
           </div>
           <button onClick={() => setMenuOpen(false)} className="md:hidden text-indigo-300">
             <X size={20} />
@@ -71,9 +76,14 @@ export default function Layout({ children }) {
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Mobile Header */}
       <div className="md:hidden bg-indigo-900 text-white px-4 py-3 flex items-center justify-between z-20">
-        <div>
-          <h1 className="text-base font-bold">Keuangan</h1>
-          <p className="text-indigo-300 text-xs">{user?.username}</p>
+        <div className="flex items-center gap-2">
+          <div className="bg-indigo-600 rounded-lg p-1">
+            <Wallet size={16} className="text-white" />
+          </div>
+          <div>
+            <h1 className="text-base font-bold">Keuangan</h1>
+            <p className="text-indigo-300 text-xs">{user?.username}</p>
+          </div>
         </div>
         <button onClick={() => setMenuOpen(true)} className="text-white">
           <Menu size={24} />

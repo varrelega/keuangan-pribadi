@@ -36,6 +36,13 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 to-purple-900">
       <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8 w-full max-w-md mx-4 md:mx-0">
         <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 bg-indigo-100 rounded-2xl mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+              <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+              <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+            </svg>
+          </div>
           <h1 className="text-2xl font-bold text-gray-900">Keuangan Pribadi</h1>
           <p className="text-gray-500 mt-2">
             {isRegister ? 'Buat akun baru' : 'Masuk ke akun Anda'}
